@@ -1,5 +1,5 @@
+import { getToken } from '@/storage/secureStore';
 import axios from 'axios';
-import { getToken } from '../storage/secureStore';
 
 const api = axios.create({
   baseURL: 'https://api.freeapi.app/api/v1',

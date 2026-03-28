@@ -47,10 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const loginUser = async (token: string, userData: User, newUser?: boolean) => {
         await setToken(token);
-        console.log({
-            user
 
-        })
         updateUser(userData, newUser);
     };
 

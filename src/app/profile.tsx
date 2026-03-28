@@ -48,7 +48,7 @@ export default function Profile() {
             try {
                 await updateAvatar(uri);
             } catch (error) {
-                console.log('Failed to upload avatar', error);
+                // console.log('Failed to upload avatar', error);
             }
         }
     };

@@ -56,7 +56,7 @@ export default function Register() {
             router.replace({ pathname: '/login', params: { newUser: true } });
 
         } catch (e: any) {
-            console.log(e.response?.data || e.message);
+            // console.log(e.response?.data || e.message);
             showToast('Registration Failed', e.response?.data?.message || 'Register failed. Please check your inputs.', 'error');
         } finally {
             setLoading(false);

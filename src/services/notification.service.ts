@@ -11,7 +11,6 @@ export const resetReminder = async () => {
 
 export const scheduleReminderNotification = async () => {
     const lastOpen = await AsyncStorage.getItem('lastOpen');
-    // console.log({ lastOpen });
     const now = Date.now();
 
     const diff = now - Number(lastOpen);

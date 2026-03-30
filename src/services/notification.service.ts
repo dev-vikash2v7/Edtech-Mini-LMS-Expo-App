@@ -15,7 +15,7 @@ export const scheduleReminderNotification = async () => {
 
     const diff = now - Number(lastOpen);
 
-    const remaining = 30 - Math.floor(diff / 1000);
+    const remaining = 86400 - Math.floor(diff / 1000);
     await Notifications.scheduleNotificationAsync({
         content: {
             title: "Come back!",

@@ -1,7 +1,8 @@
 import { useAuth } from '@/hooks/useAuth';
+import { showToast } from '@/utils/toast';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { showToast } from '@/utils/toast';
 import {
   ActivityIndicator,
   Text,
@@ -17,12 +18,12 @@ export default function Login() {
   const { loginUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const params = useLocalSearchParams();
 
-  const { newUser } = params as { newUser?: boolean };
 
   const handleLogin = async () => {
     try {
@@ -34,7 +35,7 @@ export default function Login() {
       const res = await login(email, password);
       const token = res.data.data.accessToken;
       const user = res.data.data.user;
-      await loginUser(token, user, newUser);
+      await loginUser(token, user);
       router.replace('/home');
 
 
@@ -83,14 +84,22 @@ export default function Login() {
 
           <View className="mb-4">
             <Text className="text-sm font-bold text-slate-700 mb-2 ml-1">Password</Text>
-            <TextInput
-              placeholder="••••••••"
-              placeholderTextColor="#94a3b8"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              className="bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-base text-slate-900 font-medium"
-            />
+            <View className="relative justify-center">
+              <TextInput
+                placeholder="••••••••"
+                placeholderTextColor="#94a3b8"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+                className="bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-base text-slate-900 font-medium pr-12"
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                className="absolute right-4"
+              >
+                <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="#94a3b8" />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View className="flex-row justify-end mb-6">

@@ -22,7 +22,6 @@ AppState.addEventListener('change', (state) => {
 
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
-    // console.log({ notification });
     const type = notification.request.content.data?.type;
 
     return {

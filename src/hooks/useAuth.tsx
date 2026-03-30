@@ -1,14 +1,15 @@
 import { getSavedUser, removeSavedUser, saveUser } from '@/storage/userStorage';
-import { useNetInfo } from '@react-native-community/netinfo';
+import * as FileSystem from 'expo-file-system/legacy';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { getCurrentUser, logoutApi, updateAvatarApi } from '../services/auth.service';
 import { getToken, removeToken, setToken } from '../storage/secureStore';
+import { useNetwork } from './useNetwork';
 
 export interface User {
     _id: string;
     username: string;
     email: string;
-    avatar: { url: string };
+    avatar: { url: string; localUri?: string };
     role: string;
     [key: string]: any;
 }
@@ -26,29 +27,62 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-    const { isOffline } = useNetInfo()
+    const { isOffline } = useNetwork()
 
 
-    const updateUser = async (userData: User, newUser?: boolean) => {
-        const updatedUser = {
-            username: userData.username,
-            email: userData.email,
-            avatar: newUser
-                ? { url: `https://ui-avatars.com/api/?name=${userData.username}` }
-                : userData.avatar,
-            role: userData.role,
-            _id: userData._id,
+    const updateUser = async (userData: User) => {
+        let localUri = userData.avatar?.localUri;
+
+        if (userData.avatar?.url) {
+            try {
+                let imageUrl = userData.avatar.url;
+
+                if (imageUrl.startsWith('http://')) {
+                    imageUrl = imageUrl.replace('http://', 'https://');
+                }
+
+                const filename =
+                    imageUrl.split('/').pop()?.split('?')[0] ||
+                    `avatar_${userData._id}.jpg`;
+
+                const fileUri = FileSystem.documentDirectory + filename;
+
+                const fileInfo = await FileSystem.getInfoAsync(fileUri);
+
+                if (fileInfo.exists) {
+                    localUri = fileUri;
+                } else {
+                    const downloadResult = await FileSystem.downloadAsync(
+                        imageUrl,
+                        fileUri
+                    );
+
+                    if (downloadResult.status === 200) {
+                        localUri = downloadResult.uri;
+                    }
+                }
+            } catch (error) {
+                console.log('Error downloading avatar:', error);
+            }
+        }
+
+        const updatedUser: User = {
+            ...userData,
+            avatar: {
+                url: userData.avatar.url,
+                localUri,
+            },
         };
 
-        setUser(updatedUser);
 
+        setUser(updatedUser);
         await saveUser(updatedUser);
     };
 
-    const loginUser = async (token: string, userData: User, newUser?: boolean) => {
+    const loginUser = async (token: string, userData: User) => {
         await setToken(token);
 
-        updateUser(userData, newUser);
+        updateUser(userData);
     };
 
     const logout = async () => {
@@ -100,16 +134,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (!isOffline) {
                     const res = await getCurrentUser();
 
-                    const avatar = res.data.data.avatar.url;
 
-                    let avatarResult;
-                    try {
-                        avatarResult = await fetch(avatar);
-                    } catch (error) {
-                        console.log(error, 'avatar fetch error');
-                    }
-
-                    await updateUser(res.data.data, !avatarResult);
+                    await updateUser(res.data.data);
                 } else {
                     const savedUser = await getSavedUser();
 

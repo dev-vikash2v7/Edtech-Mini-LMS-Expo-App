@@ -1,9 +1,11 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useEnrolled } from '@/hooks/useEnrolled';
+import profile from '@/images/profile.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     Image,
     ScrollView,
     Text,
@@ -16,8 +18,11 @@ export default function Profile() {
     const { user, logout, updateAvatar } = useAuth();
     const { enrolled } = useEnrolled(user?._id);
 
-    const [image, setImage] = useState<string>(user?.avatar?.url || `https://ui-avatars.com/api/?name=${user?.username}`);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [image, setImage] = useState<string>(user?.avatar?.url || '');
     const [bookmarks, setBookmarks] = useState<number[]>([]);
+
+    const avatarUri = user?.avatar?.localUri || user?.avatar?.url || image;
 
     const loadBookmarks = async () => {
         const stored = await AsyncStorage.getItem(user?._id + '/bookmarks');
@@ -42,15 +47,18 @@ export default function Profile() {
             quality: 0.8,
         });
 
+
+        setLoading(true)
         if (!result.canceled) {
             const uri = result.assets[0].uri;
             setImage(uri);
             try {
                 await updateAvatar(uri);
             } catch (error) {
-                // console.log('Failed to upload avatar', error);
+                console.log('Failed to upload avatar', error);
             }
         }
+        setLoading(false)
     };
 
 
@@ -64,11 +72,16 @@ export default function Profile() {
                     <View className="items-center">
                         <TouchableOpacity onPress={pickImage} activeOpacity={0.8} className="relative mb-4">
                             <View style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 6 }}>
-                                <Image
-                                    source={{ uri: image }}
-                                    className="w-32 h-32 rounded-full border-4 border-white bg-slate-200"
-                                    onError={() => setImage(`https://ui-avatars.com/api/?name=${user?.username}`)}
-                                />
+                                {loading ? (
+                                    <View className="w-32 h-32 rounded-full border-4 border-white bg-slate-200 items-center justify-center">
+                                        <ActivityIndicator size="large" color="#6366f1" />
+                                    </View>
+                                ) : (
+                                    <Image
+                                        source={(!avatarUri) ? profile : { uri: avatarUri }}
+                                        className="w-32 h-32 rounded-full border-4 border-white bg-slate-200"
+                                    />
+                                )}
                             </View>
                             <View className="absolute bottom-1 right-1 bg-indigo-600 w-10 h-10 rounded-full items-center justify-center border-4 border-white">
                                 <Text className="text-white text-sm">📸</Text>

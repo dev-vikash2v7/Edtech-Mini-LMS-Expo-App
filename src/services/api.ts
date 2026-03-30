@@ -2,7 +2,7 @@ import { getToken } from '@/storage/secureStore';
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://api.freeapi.app/api/v1',
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
   timeout: 10000,
 });
 

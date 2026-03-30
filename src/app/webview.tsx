@@ -1,10 +1,16 @@
-import { showToast } from '@/utils/toast';
-import { useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
-import { WebView } from 'react-native-webview';
 import { useAuth } from '@/hooks/useAuth';
 import { useEnrolled } from '@/hooks/useEnrolled';
-import { useRef, useMemo, useEffect } from 'react';
+import { showToast } from '@/utils/toast';
+import { useLocalSearchParams } from 'expo-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
+import { WebView } from 'react-native-webview';
+
+import { Asset } from 'expo-asset';
+import * as FileSystem from 'expo-file-system/legacy';
+
+
+
 
 export default function WebScreen() {
   const params = useLocalSearchParams();
@@ -24,7 +30,37 @@ export default function WebScreen() {
     images: params.images
   };
 
-  const localImageUri = Image.resolveAssetSource(require('@/images/course.jpg')).uri;
+  const getBase64Image = async () => {
+    try {
+      const asset = Asset.fromModule(require('@/images/course.jpg'));
+      await asset.downloadAsync();
+      const assetUri = asset.localUri || asset.uri;
+
+      if (assetUri.startsWith('http')) {
+        return assetUri;
+      }
+
+      const base64 = await FileSystem.readAsStringAsync(assetUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      return `data:image/jpeg;base64,${base64}`;
+    } catch (error) {
+      console.error('Error fetching course image base64:', error);
+      return Image.resolveAssetSource(require('@/images/course.jpg')).uri;
+    }
+  };
+
+
+  const [base64Image, setBase64Image] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      const img = await getBase64Image();
+      setBase64Image(img);
+    })();
+  }, []);
+
 
   const html = useMemo(() => `
     <!DOCTYPE html>
@@ -167,7 +203,7 @@ export default function WebScreen() {
         </style>
       </head>
       <body>
-        <img src="${localImageUri}" class="hero" onerror="this.src='${localImageUri}'" />
+        <img src="https://res.cloudinary.com/dnnjtrcj7/image/upload/v1774877798/course_ujh16d.jpg" class="hero" onerror="this.src='${base64Image}'" />
         
         <div class="container">
             <div class="tag">${course.category}</div>
@@ -248,7 +284,7 @@ export default function WebScreen() {
         </script>
       </body>
     </html>
-  `, [course.id, course.title, course.thumbnail, course.category, course.description, course.price, loading]);
+  `, [course.id, course.title, course.thumbnail, course.category, course.description, course.price, loading, base64Image]);
 
   useEffect(() => {
     if (loading) return;
@@ -271,25 +307,25 @@ export default function WebScreen() {
         <WebView
           ref={webviewRef}
           originWhitelist={['*']}
-        source={{
-          html,
-          headers: {
-            'X-App-Name': 'EdTechApp',
-            'X-User-Type': 'student',
-          },
-        }}
-        startInLoadingState={true}
-        renderLoading={() => (
-          <View style={[StyleSheet.absoluteFillObject, styles.center]}>
-            <ActivityIndicator size="large" color="#4f46e5" />
-          </View>
-        )}
-        renderError={() => (
-          <View style={[StyleSheet.absoluteFillObject, styles.center]}>
-            <Text style={styles.errorText}>Failed to load course content. Please try again.</Text>
-          </View>
-        )}
-        injectedJavaScript={`
+          source={{
+            html,
+            headers: {
+              'X-App-Name': 'EdTechApp',
+              'X-User-Type': 'student',
+            },
+          }}
+          startInLoadingState={true}
+          renderLoading={() => (
+            <View style={[StyleSheet.absoluteFillObject, styles.center]}>
+              <ActivityIndicator size="large" color="#4f46e5" />
+            </View>
+          )}
+          renderError={() => (
+            <View style={[StyleSheet.absoluteFillObject, styles.center]}>
+              <Text style={styles.errorText}>Failed to load course content. Please try again.</Text>
+            </View>
+          )}
+          injectedJavaScript={`
           window.postMessage(JSON.stringify({
             type: 'HEADERS',
             headers: {
@@ -299,20 +335,20 @@ export default function WebScreen() {
           }), '*');
           true; 
         `}
-        onMessage={(event) => {
-          const data = JSON.parse(event.nativeEvent.data);
+          onMessage={(event) => {
+            const data = JSON.parse(event.nativeEvent.data);
 
-          if (data.type === 'ENROLL') {
-            toggleEnrolled(course.id);
-            const currentlyEnrolled = isEnrolled(course.id);
-            if (!currentlyEnrolled) {
-              showToast('Success 🎉', 'You enrolled in this course!', 'success');
-            } else {
-              showToast('Unenrolled', 'You have unenrolled from this course.', 'info');
+            if (data.type === 'ENROLL') {
+              toggleEnrolled(course.id);
+              const currentlyEnrolled = isEnrolled(course.id);
+              if (!currentlyEnrolled) {
+                showToast('Success 🎉', 'You enrolled in this course!', 'success');
+              } else {
+                showToast('Unenrolled', 'You have unenrolled from this course.', 'info');
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
       )}
     </View>
   );

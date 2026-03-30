@@ -2,6 +2,7 @@ import CourseItem from '@/components/home/CourseItem';
 import { useAuth } from '@/hooks/useAuth';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useEnrolled } from '@/hooks/useEnrolled';
+import profile from '@/images/profile.png';
 import {
     resetReminder,
     scheduleReminderNotification,
@@ -30,10 +31,11 @@ const HomeScreen = () => {
 
     const router = useRouter();
     const { user } = useAuth();
-    const [imgError, setImgError] = useState(false);
 
     const { toggleBookmark, isBookmarked } = useBookmarks(user?._id);
     const { isEnrolled } = useEnrolled(user?._id);
+
+
 
     useEffect(() => {
         const handleReminder = async () => {
@@ -43,6 +45,14 @@ const HomeScreen = () => {
         };
         handleReminder();
     }, []);
+
+    const avatarUri = user?.avatar?.localUri || user?.avatar?.url;
+
+    try {
+    } catch (error) {
+        console.log(error, 'avatar fetch error');
+    }
+
 
     const ITEM_HEIGHT = 260;
 
@@ -122,13 +132,10 @@ const HomeScreen = () => {
 
                 <TouchableOpacity onPress={() => router.push('/profile')}>
                     <Image
-                        source={{
-                            uri: !imgError
-                                ? user?.avatar?.url
-                                : `https://ui-avatars.com/api/?name=${user?.username}`,
+                        source={(!avatarUri) ? profile : {
+                            uri: avatarUri,
                         }}
                         className="w-12 h-12 rounded-full border-2 border-slate-200"
-                        onError={() => setImgError(true)}
                     />
                 </TouchableOpacity>
             </View>

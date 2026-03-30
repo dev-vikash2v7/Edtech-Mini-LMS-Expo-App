@@ -1,6 +1,7 @@
+import { showToast } from '@/utils/toast';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { showToast } from '@/utils/toast';
 import {
     ActivityIndicator,
     Text,
@@ -18,6 +19,9 @@ export default function Register() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
     function containsUppercase(str: string) {
@@ -26,8 +30,12 @@ export default function Register() {
 
     const handleRegister = async () => {
         try {
-            if (!name || !email || !password) {
+            if (!name || !email || !password || !confirmPassword) {
                 showToast('Validation Error', 'Please fill all the fields.', 'error');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showToast('Validation Error', 'Passwords do not match.', 'error');
                 return;
             }
             if (name.length < 3) {
@@ -53,10 +61,10 @@ export default function Register() {
             });
 
             showToast('Registration Successful 🎉', 'Welcome aboard! You can now sign in.', 'success');
-            router.replace({ pathname: '/login', params: { newUser: true } });
+            router.replace('/login');
 
         } catch (e: any) {
-            // console.log(e.response?.data || e.message);
+            console.log(e.response?.data || e.message);
             showToast('Registration Failed', e.response?.data?.message || 'Register failed. Please check your inputs.', 'error');
         } finally {
             setLoading(false);
@@ -110,16 +118,50 @@ export default function Register() {
                         />
                     </View>
 
-                    <View className="mb-6">
+                    <View className="mb-5">
                         <Text className="text-sm font-bold text-slate-700 mb-2 ml-1">Password</Text>
-                        <TextInput
-                            placeholder="••••••••"
-                            placeholderTextColor="#94a3b8"
-                            secureTextEntry
-                            value={password}
-                            onChangeText={setPassword}
-                            className="bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-base text-slate-900 font-medium"
-                        />
+                        <View className="relative justify-center">
+                            <TextInput
+                                placeholder="••••••••"
+                                placeholderTextColor="#94a3b8"
+                                secureTextEntry={!showPassword}
+                                value={password}
+                                onChangeText={setPassword}
+                                className="bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-base text-slate-900 font-medium pr-12"
+                            />
+                            <TouchableOpacity
+                                onPress={() => setShowPassword(!showPassword)}
+                                className="absolute right-4"
+                            >
+                                <Ionicons name={showPassword ? "eye-off" : "eye"} size={24} color="#94a3b8" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <View className="mb-6">
+                        <Text className="text-sm font-bold text-slate-700 mb-2 ml-1">Confirm Password</Text>
+                        <View className="relative justify-center">
+                            <TextInput
+                                placeholder="••••••••"
+                                placeholderTextColor="#94a3b8"
+                                secureTextEntry={!showConfirmPassword}
+                                value={confirmPassword}
+                                onChangeText={setConfirmPassword}
+                                className={`bg-slate-50 border rounded-2xl px-5 py-4 text-base text-slate-900 font-medium pr-12 ${confirmPassword.length > 0 && password !== confirmPassword ? 'border-red-400' : 'border-slate-200'
+                                    }`}
+                            />
+                            <TouchableOpacity
+                                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-4"
+                            >
+                                <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={24} color="#94a3b8" />
+                            </TouchableOpacity>
+                        </View>
+                        <View className="h-4 pl-2 mt-1">
+                            {confirmPassword.length > 0 && password !== confirmPassword && (
+                                <Text className="text-red-500 text-xs font-medium">Passwords do not match</Text>
+                            )}
+                        </View>
                     </View>
                 </View>
 

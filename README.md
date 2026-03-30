@@ -1,56 +1,86 @@
-# Welcome to your Expo app 👋
+##  Setup Instructions 
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+###  Prerequisites
+- Node.js (v18 or higher )
+- npm or yarn
+- Git
+- Android Studio (for Android Emulator)
+- Xcode (for iOS Simulator)
 
-## Get started
+---
 
-1. Install dependencies
+##  Installation & Running
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Clone the repository
 
 ```bash
-npm run reset-project
+git clone https://github.com/dev-vikash2v7/Edtech-Mini-LMS-Expo-App
+cd Edtech-Mini-LMS-Expo-App
+ ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   npm install -g  eas-cli
+   ```
+3. **npx expo login**:
+   ```bash
+   npx expo login
+   ```
+
+3. **INITIALIZE EAS (FIRST TIME ONLY)**:
+   ```bash
+   npx expo prebuild
+
+   npx eas build:configure
+   ```
+
+4. **CREATE DEVELOPMENT BUILD**:
+   ```bash
+   npx eas build -p android --profile preview # android
+   npx eas build -p ios --profile preview # ios
+   ```
+
+5. **RUN DEVELOPMENT BUILD**:
+   ```bash
+   npx expo start --dev-client # App opened in device
+   ```
+
+## Environment Variables Needed
+
+Create .env file in root add these variable
+```env
+EXPO_PUBLIC_API_URL=https://api.freeapi.app/api/v1
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Key Architectural Decisions
 
-### Other setup steps
+Local Image : Download image locally and use it.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Framework: Built with Expo + React Native for cross-platform (Android & iOS) development.
 
-## Learn more
+Routing: Uses Expo Router for clean, file-based navigation.
 
-To learn more about developing your project with Expo, look at the following resources:
+Styling: Implemented with NativeWind for scalable and consistent UI.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+State Management: Centralized auth using React Context (AuthContext) with secure token storage via Expo SecureStore.
 
-## Join the community
+Offline Support: Uses AsyncStorage + custom hooks to cache user data, bookmarks, and courses for offline access.
 
-Join our community of developers creating universal apps.
+Network Handling: Integrated NetInfo for detecting offline mode and fallback to cached data.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Notifications: Handle Foreground and Background Custom notification logic for 24 hours auto reminders and bookmarks.
+
+
+
+## Known Issues / Limitations
+
+Dev Build Caching: Changes like splash screen or native configs require rebuilding .
+
+WebView Loading Issues: Some external or local assets may fail to load reliably.
+
+Public API Limits: Uses free API (freeapi.app), which may have rate limits or instability.
+
+Offline Sync Delay: Switching between online/offline data can cause slight delay due to network detection.
+
+Image Failures: Remote images may break; handled via local fallback but still dependent on source quality.

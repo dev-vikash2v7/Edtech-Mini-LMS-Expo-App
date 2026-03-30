@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
 
 export const useEnrolled = (userId?: string) => {
     const [enrolled, setEnrolled] = useState<string[]>([]);
@@ -61,9 +62,11 @@ export const useEnrolled = (userId?: string) => {
         [enrolledSet]
     );
 
-    useEffect(() => {
-        loadEnrolled();
-    }, [loadEnrolled]);
+    useFocusEffect(
+        useCallback(() => {
+            loadEnrolled();
+        }, [loadEnrolled])
+    );
 
     return {
         enrolled,

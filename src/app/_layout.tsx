@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
+import * as Sentry from '@sentry/react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { StatusBar } from 'react-native';
@@ -11,15 +12,17 @@ import { requestNotificationPermission } from '@/services/notification.service';
 import { Text, View } from 'react-native';
 
 import { useNetwork } from '@/hooks/useNetwork';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { AppState } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let isAppActive = true;
 
 AppState.addEventListener('change', (state) => {
   isAppActive = state === 'active';
 });
+
+
 
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
@@ -44,6 +47,16 @@ Notifications.setNotificationHandler({
   },
 });
 
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  tracesSampleRate: 1.0,
+  sendDefaultPii: true,
+  enableLogs: true,
+  enableNative: true,
+});
+
+
 function RootNav() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -64,7 +77,7 @@ function RootNav() {
   return <Stack screenOptions={{ headerShown: false }} />;
 }
 
-export default function RootLayout() {
+function RootLayout() {
 
 
   const { isOffline } = useNetwork();
@@ -100,3 +113,4 @@ export default function RootLayout() {
   );
 }
 
+export default Sentry.wrap(RootLayout);

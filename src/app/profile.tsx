@@ -2,6 +2,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEnrolled } from '@/hooks/useEnrolled';
 import profile from '@/images/profile.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Sentry from '@sentry/react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -127,9 +128,9 @@ export default function Profile() {
                 <View className="px-6 mb-8">
                     <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Preferences</Text>
 
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         onPress={() => router.push('/setting')}
-                        className="bg-white p-4 items-center justify-between border border-slate-100 mb-3" 
+                        className="bg-white p-4 items-center justify-between border border-slate-100 mb-3"
                         style={{ borderRadius: 24, flexDirection: 'row' }}
                     >
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -149,6 +150,22 @@ export default function Profile() {
                             <Text className="text-base font-bold text-slate-800">Help & Support</Text>
                         </View>
                         <Text className="text-slate-300 font-bold text-lg mr-2">›</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => {
+                            Sentry.captureMessage("Erro capture by Button Pressed on  Profile Screen ");
+                            throw new Error("Profile Screen Native Exception");
+                        }}
+                        className="bg-red-50 p-4 items-center justify-between border border-red-100 mt-3"
+                        style={{ borderRadius: 24, flexDirection: 'row' }}
+                    >
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <View>
+                                <Text className="text-base font-bold text-red-600">Tap to crash app</Text>
+                            </View>
+                        </View>
+                        <Text className="text-red-300 font-bold text-lg mr-2">›</Text>
                     </TouchableOpacity>
                 </View>
 

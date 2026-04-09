@@ -7,9 +7,6 @@ export default function Index() {
 
 
 
-
-
-
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">

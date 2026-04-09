@@ -9,17 +9,17 @@ import {
     updateLastOpen
 } from '@/services/notification.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Sentry from '@sentry/react-native';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-    Button,
     FlatList,
     Image,
     RefreshControl,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
 import { getCourses, getLocalCourses } from '../services/course.service';
 
@@ -172,6 +172,23 @@ const HomeScreen = () => {
                 className="m-[15px] p-3 bg-white rounded-[10px] border border-slate-100 "
                 placeholderTextColor={'#94a3b8'}
             />
+
+            <TouchableOpacity
+                onPress={() => {
+
+                    Sentry.captureMessage("Error capture by Button Pressed on Home Screen");
+                    throw new Error("Sentry Demo: Home Screen Crash");
+                }}
+                className="mx-[15px] bg-red-600/10 border border-red-200 p-4 rounded-2xl flex-row items-center justify-between mb-6"
+            >
+                <View className="flex-row items-center">
+                    <View>
+                        <Text className="text-red-700 font-bold">Tap to crash app</Text>
+                    </View>
+                </View>
+                <Text className="text-red-300 font-bold text-lg">›</Text>
+            </TouchableOpacity>
+
 
 
 

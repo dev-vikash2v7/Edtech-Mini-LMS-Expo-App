@@ -51,6 +51,12 @@ cd Edtech-Mini-LMS-Expo-App
 Create .env file in root add these variable
 ```env
 EXPO_PUBLIC_API_URL=https://api.freeapi.app/api/v1
+
+EXPO_PUBLIC_SENTRY_DSN=https://84a171606fd74fcceb97b4fc316c9140@o4511184162127872.ingest.us.sentry.io/4511184164814848
+
+SENTRY_AUTH_TOKEN=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
+
+
 ```
 
 ## Key Architectural Decisions
@@ -105,10 +111,3 @@ Image Failures: Remote images may break; handled via local fallback but still de
   <video src="https://youtu.be/WxPiRNYrKY0"  controls></video>
 </div>
   <a href="https://youtu.be/WxPiRNYrKY0" target="_blank">Watch on YouTube</a>
-
-
-  1. sentriy tool to monitor crash with clicking two buttons  
-
-  2. account setting -> make a setting option which used to change app icon  
-
-  3. account setting -> user should disable or enabled notificaiton   

@@ -84,3 +84,31 @@ Public API Limits: Uses free API (freeapi.app), which may have rate limits or in
 Offline Sync Delay: Switching between online/offline data can cause slight delay due to network detection.
 
 Image Failures: Remote images may break; handled via local fallback but still dependent on source quality.
+
+---
+
+## 📱 Screenshots & Demo
+
+### 📸 App Screenshots
+
+<div align="center">
+  <img src="assets/screenshots/s1.jpg" width="180" />
+  <img src="assets/screenshots/s2.jpg" width="180" />
+  <img src="assets/screenshots/s3.jpg" width="180" />
+  <img src="assets/screenshots/s4.jpg" width="180" />
+  <img src="assets/screenshots/s5.jpg" width="180" />
+</div>
+
+### 🎥 Video Walkthrough
+
+<div align="center">
+  <video src="https://youtu.be/WxPiRNYrKY0"  controls></video>
+</div>
+  <a href="https://youtu.be/WxPiRNYrKY0" target="_blank">Watch on YouTube</a>
+
+
+  1. sentriy tool to monitor crash with clicking two buttons  
+
+  2. account setting -> make a setting option which used to change app icon  
+
+  3. account setting -> user should disable or enabled notificaiton   

@@ -8,9 +8,11 @@ import {
     scheduleReminderNotification,
     updateLastOpen
 } from '@/services/notification.service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+    Button,
     FlatList,
     Image,
     RefreshControl,
@@ -35,7 +37,21 @@ const HomeScreen = () => {
     const { toggleBookmark, isBookmarked } = useBookmarks(user?._id);
     const { isEnrolled } = useEnrolled(user?._id);
 
+    const [currentIcon, setCurrentIcon] = useState(require('../../assets/icon.png'));
 
+
+    const APP_ICONS = [
+        { id: 'default', image: require('../../assets/icon.png') },
+        { id: 'green', image: require('../../assets/icon1.png') },
+        { id: 'blue', image: require('../../assets/icon2.png') },
+        { id: 'red', image: require('../../assets/icon3.png') },
+    ];
+
+
+    const loadCurrentIcon = async () => {
+        const iconId = await AsyncStorage.getItem('app_icon_key');
+        if (iconId) setCurrentIcon(APP_ICONS.find((icon) => icon.id === iconId)?.image);
+    };
 
     useEffect(() => {
         const handleReminder = async () => {
@@ -43,6 +59,7 @@ const HomeScreen = () => {
             await resetReminder();
             await scheduleReminderNotification();
         };
+        loadCurrentIcon()
         handleReminder();
     }, []);
 
@@ -122,13 +139,21 @@ const HomeScreen = () => {
 
 
 
+
     return (
         <View className="flex-1 bg-[#f5f7fb] pt-5">
 
 
 
             <View className="flex-row justify-between items-center px-[15px] mb-2.5 mt-4">
-                <Text className="text-2xl font-bold text-slate-800">House Of Edtech</Text>
+                <View className="flex-row items-center">
+                    <Image
+                        source={currentIcon}
+                        className="w-10 h-10 rounded-xl mr-2.5"
+                        resizeMode="contain"
+                    />
+                    <Text className="text-2xl font-bold text-slate-800">House Of Edtech</Text>
+                </View>
 
                 <TouchableOpacity onPress={() => router.push('/profile')}>
                     <Image
@@ -147,7 +172,6 @@ const HomeScreen = () => {
                 className="m-[15px] p-3 bg-white rounded-[10px] border border-slate-100 "
                 placeholderTextColor={'#94a3b8'}
             />
-
 
 
 

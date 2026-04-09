@@ -41,7 +41,6 @@ export const getCourses = async () => {
 
         return courses;
     } catch (error: any) {
-        // console.log('Error fetching courses:', error);
         if (error.code === 'ECONNABORTED') {
             throw new Error('Request timed out. Please try again.');
         } else if (!error.response) {

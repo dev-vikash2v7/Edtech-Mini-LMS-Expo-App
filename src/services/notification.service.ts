@@ -10,6 +10,9 @@ export const resetReminder = async () => {
 };
 
 export const scheduleReminderNotification = async () => {
+    const notificationsEnabled = await AsyncStorage.getItem('notifications_enabled');
+    if (notificationsEnabled === 'false') return;
+
     const lastOpen = await AsyncStorage.getItem('lastOpen');
     const now = Date.now();
 

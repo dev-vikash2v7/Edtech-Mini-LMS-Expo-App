@@ -3,6 +3,7 @@ import { useEnrolled } from '@/hooks/useEnrolled';
 import profile from '@/images/profile.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
@@ -15,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Profile() {
+    const router = useRouter();
     const { user, logout, updateAvatar } = useAuth();
     const { enrolled } = useEnrolled(user?._id);
 
@@ -31,7 +33,6 @@ export default function Profile() {
         }
     };
 
-
     useEffect(() => {
         loadBookmarks();
     }, []);
@@ -47,24 +48,21 @@ export default function Profile() {
             quality: 0.8,
         });
 
-
-        setLoading(true)
         if (!result.canceled) {
             const uri = result.assets[0].uri;
             setImage(uri);
+            setLoading(true);
             try {
                 await updateAvatar(uri);
             } catch (error) {
                 console.log('Failed to upload avatar', error);
             }
+            setLoading(false);
         }
-        setLoading(false)
     };
-
 
     return (
         <SafeAreaView className="flex-1 bg-slate-50">
-
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
                 <View className="bg-white rounded-b-[40px] shadow-sm pb-8 px-6 pt-6 mb-8">
                     <Text className="text-2xl font-extrabold text-slate-900 mb-6 text-center tracking-tight">My Profile</Text>
@@ -129,7 +127,11 @@ export default function Profile() {
                 <View className="px-6 mb-8">
                     <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 ml-2">Preferences</Text>
 
-                    <TouchableOpacity className="bg-white p-4 items-center justify-between border border-slate-100 mb-3" style={{ borderRadius: 24, flexDirection: 'row' }}>
+                    <TouchableOpacity 
+                        onPress={() => router.push('/setting')}
+                        className="bg-white p-4 items-center justify-between border border-slate-100 mb-3" 
+                        style={{ borderRadius: 24, flexDirection: 'row' }}
+                    >
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <View className="w-12 h-12 bg-slate-50 rounded-full items-center justify-center mr-4">
                                 <Text className="text-lg">⚙️</Text>
@@ -138,7 +140,6 @@ export default function Profile() {
                         </View>
                         <Text className="text-slate-300 font-bold text-lg mr-2">›</Text>
                     </TouchableOpacity>
-
 
                     <TouchableOpacity className="bg-white p-4 items-center justify-between border border-slate-100" style={{ borderRadius: 24, flexDirection: 'row' }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -151,7 +152,6 @@ export default function Profile() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Logout Button */}
                 <View className="px-6">
                     <TouchableOpacity
                         onPress={logout}

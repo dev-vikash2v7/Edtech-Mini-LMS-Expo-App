@@ -13,6 +13,7 @@ import { Text, View } from 'react-native';
 import { useNetwork } from '@/hooks/useNetwork';
 import * as Notifications from 'expo-notifications';
 import { AppState } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let isAppActive = true;
 
@@ -22,6 +23,15 @@ AppState.addEventListener('change', (state) => {
 
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
+    const savedPreference = await AsyncStorage.getItem('notifications_enabled');
+    if (savedPreference === 'false') {
+      return {
+        shouldShowAlert: false,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      };
+    }
+
     const type = notification.request.content.data?.type;
 
     return {
@@ -62,7 +72,13 @@ export default function RootLayout() {
 
 
   useEffect(() => {
-    requestNotificationPermission();
+    const checkAndRequestPermission = async () => {
+      const savedPreference = await AsyncStorage.getItem('notifications_enabled');
+      if (savedPreference !== 'false') {
+        await requestNotificationPermission();
+      }
+    };
+    checkAndRequestPermission();
   }, []);
 
 
